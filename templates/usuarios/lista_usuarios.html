@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Usuarios{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Usuarios del Sistema UTN-04</h2>
+    {% if es_superadmin %}
+    <a href="{% url 'crear_usuario' %}" class="btn btn-primary">+ Nuevo Usuario</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Identificación</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Permisos Asignados</th>
+                        <th>Último Inicio de Sesión</th>
+                        {% if es_superadmin %}<th>Acciones</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td><strong>{{ u.nombre_completo }}</strong></td>
+                        <td>{{ u.identificacion }}</td>
+                        <td>{{ u.username }}</td>
+                        <td>
+                            <span class="badge bg-info text-dark">{{ u.rol.nombre|default:"Sin Rol" }}</span>
+                        </td>
+                        <td>
+                            {% if u.rol %}
+                            {% if u.rol.puede_crear %}<span class="badge bg-success">Crear</span>{% endif %}
+                            {% if u.rol.puede_editar %}<span class="badge bg-warning text-dark">Editar</span>{% endif %}
+                            {% if u.rol.puede_borrar %}<span class="badge bg-danger">Borrar</span>{% endif %}
+                            {% if u.rol.puede_ver_reportes %}<span class="badge bg-primary">Reportes</span>{% endif %}
+                            {% else %}
+                            <span class="text-muted">Ninguno</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ u.last_login|default:"Nunca ha iniciado sesión" }}</td>
+                        {% if es_superadmin %}
+                        <td>
+                            <a href="{% url 'editar_usuario' u.pk %}"
+                                class="btn btn-sm btn-outline-secondary">Editar</a>
+                            <a href="{% url 'eliminar_usuario' u.pk %}"
+                                class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">No hay usuarios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

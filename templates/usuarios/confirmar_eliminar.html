@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar Eliminación{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-body p-4 text-center">
+                <h4 class="text-danger">¿Está seguro de eliminar este {{ tipo }}?</h4>
+                <p class="fs-5 my-3"><strong>{{ objeto }}</strong></p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                    <a href="javascript:history.back()" class="btn btn-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

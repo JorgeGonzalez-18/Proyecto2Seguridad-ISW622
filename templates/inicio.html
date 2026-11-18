@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
+    <div class="container-fluid py-3">
+        <h1 class="display-6 fw-bold">Sistema de Reserva de Salas y Laboratorios</h1>
+        <p class="col-md-8 fs-5 text-muted">
+            Bienvenido al sistema seguro del campus. Rol actual:
+            <strong>{{ user.rol.nombre }}</strong>
+        </p>
+        <hr class="my-4">
+        <div class="d-flex gap-2">
+            <a href="{% url 'lista_usuarios' %}" class="btn btn-primary">Gestión de Usuarios</a>
+            {% if user.is_superuser or user.rol.nombre == 'SuperAdmin' %}
+            <a href="{% url 'lista_roles' %}" class="btn btn-outline-secondary">Gestión de Roles</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
