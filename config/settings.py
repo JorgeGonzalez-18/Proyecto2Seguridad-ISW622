@@ -47,6 +47,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # UTN-07c: Middleware de expiración de sesión por inactividad
+    "usuarios.middleware.InactividadSesionMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -132,3 +134,33 @@ PASSWORD_HASHERS = [
 
 # UTN-04: Modelo de usuario personalizado con soporte RBAC y campos de auditoría
 AUTH_USER_MODEL = "usuarios.Usuario"
+
+
+# ==========================================
+# UTN-07c: CONFIGURACIÓN DE SESIÓN SEGURA
+# ==========================================
+# Tiempo de inactividad máximo en segundos (60 segundos requeridos por el enunciado)
+TIEMPO_INACTIVIDAD_SEGUNDOS = 60
+
+# La cookie de sesión expira en 60 segundos
+SESSION_COOKIE_AGE = 60
+
+# Renovar la cookie en cada petición para que la inactividad empiece a contar desde la última acción
+SESSION_SAVE_EVERY_REQUEST = True
+
+# La sesión se cierra al cerrar el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# UTN-07c: Cookies con HttpOnly activado (JavaScript no puede leer la cookie)
+SESSION_COOKIE_HTTPONLY = True
+
+# UTN-07d: Protección SameSite contra ataques CSRF en cookies
+SESSION_COOKIE_SAMESITE = "Lax"
+
+# En producción (con HTTPS) la cookie solo viaja cifrada
+SESSION_COOKIE_SECURE = not DEBUG
+
+# Proteger la cookie CSRF con las mismas políticas
+CSRF_COOKIE_HTTPONLY = False  # Necesario para peticiones AJAX si aplica
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = not DEBUG
