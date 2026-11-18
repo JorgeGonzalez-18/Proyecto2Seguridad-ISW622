@@ -15,7 +15,7 @@ class RolAdmin(admin.ModelAdmin):
         "puede_borrar",
         "puede_ver_reportes",
     )
-    search_fields = "nombre"
+    search_fields = ["nombre"]
 
 
 @admin.register(Usuario)
