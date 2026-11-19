@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'csp.middleware.CSPMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -151,16 +152,42 @@ SESSION_SAVE_EVERY_REQUEST = True
 # La sesión se cierra al cerrar el navegador
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# UTN-07c: Cookies con HttpOnly activado (JavaScript no puede leer la cookie)
+
+# SEGURIDAD Y BLINDAJE DE COOKIES 
+# Cookies con HttpOnly activado: JavaScript no puede leer la sesión (protección anti-XSS)
 SESSION_COOKIE_HTTPONLY = True
 
-# UTN-07d: Protección SameSite contra ataques CSRF en cookies
+# Protección SameSite contra ataques de falsificación de peticiones en sitios cruzados (CSRF)
 SESSION_COOKIE_SAMESITE = "Lax"
 
-# En producción (con HTTPS) la cookie solo viaja cifrada
+# En producción (con HTTPS) la cookie viaja cifrada
 SESSION_COOKIE_SECURE = not DEBUG
 
-# Proteger la cookie CSRF con las mismas políticas
-CSRF_COOKIE_HTTPONLY = False  # Necesario para peticiones AJAX si aplica
+# Blindaje de la cookie CSRF
+CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = not DEBUG
+
+
+
+# Encabezados HTTP de seguridad  
+# Previene Clickjacking: impide que carguen el sitio dentro de iframes maliciosos
+X_FRAME_OPTIONS = 'DENY'
+
+# Previene ataques de tipo MIME Sniffing o confusión de contenido
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# HSTS: obliga a usar conexiones seguras HTTPS
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Content-Security-Policy o CSP es:
+# Lista blanca que define qué orígenes pueden cargar scripts, estilos e imágenes
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net")
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_FONT_SRC = ("'self'", "https://cdn.jsdelivr.net")
+CSP_OBJECT_SRC = ("'none'",)
+CSP_FRAME_ANCESTORS = ("'none'",)
