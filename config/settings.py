@@ -49,6 +49,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # UTN-09: Guarda la petición actual para auditar quién hace cada cambio
+    "auditoria.middleware.RequestActualMiddleware",
     # UTN-07c: Middleware de expiración de sesión por inactividad
     "usuarios.middleware.InactividadSesionMiddleware",
 ]

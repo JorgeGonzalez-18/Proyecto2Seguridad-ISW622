@@ -39,3 +39,50 @@ class LoginAuditoriaTests(TestCase):
         self.assertEqual(
             LogAuditoria.objects.filter(tipo_evento=LogAuditoria.TIPO_LOGIN_FALLIDO).count(), 1
         )
+
+
+class CambiosRolAuditoriaTests(TestCase):
+    def setUp(self):
+        from usuarios.models import Rol
+
+        self.rol_admin = Rol.objects.create(nombre="SuperAdmin", puede_crear=True)
+        self.rol_aud = Rol.objects.create(nombre="Auditor")
+        self.admin = Usuario.objects.create_user(
+            username="root", password="Clave-Segura-123", identificacion="9-9999-9999",
+            nombre_completo="Root", rol=self.rol_admin,
+        )
+        self.otro = Usuario.objects.create_user(
+            username="bob", password="Clave-Segura-123", identificacion="2-2222-2222",
+            nombre_completo="Bob",
+        )
+        LogAuditoria.objects.all().delete()
+        self.client.force_login(self.admin)
+        LogAuditoria.objects.all().delete()
+
+    def test_editar_permisos_de_rol_registra_quien_y_que(self):
+        self.client.post(
+            reverse("editar_rol", args=[self.rol_aud.pk]),
+            {"nombre": "Auditor", "descripcion": "", "puede_ver_reportes": "on"},
+        )
+        log = LogAuditoria.objects.get(tipo_evento=LogAuditoria.TIPO_CAMBIO_ROL)
+        self.assertEqual(log.username_intentado, "root")
+        self.assertEqual(log.usuario_afectado, "Rol: Auditor")
+        self.assertIn("Ver reportes", log.detalle)
+
+    def test_asignar_rol_a_usuario_registra_cambio(self):
+        self.client.post(
+            reverse("editar_usuario", args=[self.otro.pk]),
+            {"username": "bob", "nombre_completo": "Bob", "identificacion": "2-2222-2222",
+             "email": "", "rol": self.rol_aud.pk, "is_active": "on"},
+        )
+        log = LogAuditoria.objects.get(tipo_evento=LogAuditoria.TIPO_CAMBIO_ROL)
+        self.assertEqual(log.usuario_afectado, "bob")
+        self.assertEqual(log.username_intentado, "root")
+        self.assertIn("Auditor", log.detalle)
+
+    def test_guardar_sin_cambios_no_registra(self):
+        self.otro.nombre_completo = "Bob Nuevo"
+        self.otro.save()
+        self.assertFalse(
+            LogAuditoria.objects.filter(tipo_evento=LogAuditoria.TIPO_CAMBIO_ROL).exists()
+        )
