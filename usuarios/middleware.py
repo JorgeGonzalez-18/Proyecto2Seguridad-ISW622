@@ -16,7 +16,7 @@ class InactividadSesionMiddleware:
     def __call__(self, request):
         if request.user.is_authenticated:
             ahora = time.time()
-            ultima_actividad = request.session.get("Ultima_actividad")
+            ultima_actividad = request.session.get("ultima_actividad")
 
             tiempo_limite = getattr(settings, "TIEMPO_INACTIVIDAD_SEGUNDOS", 60)
 
