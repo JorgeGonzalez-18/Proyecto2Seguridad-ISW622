@@ -86,3 +86,41 @@ class CambiosRolAuditoriaTests(TestCase):
         self.assertFalse(
             LogAuditoria.objects.filter(tipo_evento=LogAuditoria.TIPO_CAMBIO_ROL).exists()
         )
+
+
+class Acceso403AuditoriaTests(TestCase):
+    def setUp(self):
+        from usuarios.models import Rol
+
+        rol = Rol.objects.create(nombre="Auditor")
+        self.auditor = Usuario.objects.create_user(
+            username="aud", password="Clave-Segura-123", identificacion="3-3333-3333",
+            nombre_completo="Aud", rol=rol,
+        )
+        LogAuditoria.objects.all().delete()
+
+    def test_403_registra_ruta_usuario_e_ip(self):
+        self.client.force_login(self.auditor)
+        r = self.client.get(reverse("lista_roles"), REMOTE_ADDR="10.9.9.9")
+        self.assertEqual(r.status_code, 403)
+        log = LogAuditoria.objects.get(tipo_evento=LogAuditoria.TIPO_ACCESO_DENEGADO)
+        self.assertEqual(log.username_intentado, "aud")
+        self.assertEqual(log.ruta, reverse("lista_roles"))
+        self.assertEqual(log.ip, "10.9.9.9")
+
+    def test_respuesta_200_no_registra(self):
+        self.client.force_login(self.auditor)
+        self.client.get(reverse("lista_usuarios"))
+        self.assertFalse(
+            LogAuditoria.objects.filter(tipo_evento=LogAuditoria.TIPO_ACCESO_DENEGADO).exists()
+        )
+
+    def test_csrf_fallido_se_registra_como_403(self):
+        from django.test import Client
+
+        c = Client(enforce_csrf_checks=True)
+        r = c.post(reverse("login"), {"username": "aud", "password": "x"})
+        self.assertEqual(r.status_code, 403)
+        self.assertTrue(
+            LogAuditoria.objects.filter(tipo_evento=LogAuditoria.TIPO_ACCESO_DENEGADO).exists()
+        )

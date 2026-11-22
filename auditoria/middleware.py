@@ -24,3 +24,31 @@ class RequestActualMiddleware:
             return self.get_response(request)
         finally:
             _request_actual.reset(token)
+
+
+class Acceso403AuditMiddleware:
+    """
+    UTN-09: Registra todo acceso denegado (HTTP 403) con la ruta intentada,
+    el usuario, la IP y la hora. Cubre PermissionDenied, fallos CSRF y
+    cualquier otra respuesta 403 del sistema.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if response.status_code == 403:
+            from .models import LogAuditoria
+            from .utils import registrar_evento
+
+            usuario = getattr(request, "user", None)
+            autenticado = bool(usuario and usuario.is_authenticated)
+            registrar_evento(
+                LogAuditoria.TIPO_ACCESO_DENEGADO,
+                request=request,
+                usuario=usuario if autenticado else None,
+                username=usuario.get_username() if autenticado else "anónimo",
+                detalle=f"Acceso denegado (403) con método {request.method}.",
+            )
+        return response

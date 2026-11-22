@@ -51,6 +51,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # UTN-09: Guarda la petición actual para auditar quién hace cada cambio
     "auditoria.middleware.RequestActualMiddleware",
+    # UTN-09: Registra los accesos denegados (HTTP 403)
+    "auditoria.middleware.Acceso403AuditMiddleware",
     # UTN-07c: Middleware de expiración de sesión por inactividad
     "usuarios.middleware.InactividadSesionMiddleware",
 ]
