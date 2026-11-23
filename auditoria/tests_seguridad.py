@@ -65,6 +65,6 @@ class CsrfTests(TestCase):
 
     def test_formularios_incluyen_token(self):
         self.client.force_login(self.admin)
-        for nombre in ("crear_rol",):
+        for nombre in ("crear_usuario", "crear_rol"):
             r = self.client.get(reverse(nombre))
             self.assertContains(r, "csrfmiddlewaretoken")

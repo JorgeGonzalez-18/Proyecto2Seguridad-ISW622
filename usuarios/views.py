@@ -82,7 +82,7 @@ def crear_usuario(request):
     else:
         form = UsuarioCrearForm()
     return render(
-        request, "usuarios/form_usuario.html", {"form": form, "titulo": "Crear Usuario"}
+        request, "usuarios/form_usuarios.html", {"form": form, "titulo": "Crear Usuario"}
     )
 
 
@@ -101,7 +101,7 @@ def editar_usuario(request, pk):
         form = UsuarioEditarForm(instance=usuario)
     return render(
         request,
-        "usuarios/form_usuario.html",
+        "usuarios/form_usuarios.html",
         {"form": form, "titulo": f"Editar Usuario: {usuario.username}"},
     )
 
