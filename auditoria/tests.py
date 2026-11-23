@@ -124,3 +124,48 @@ class Acceso403AuditoriaTests(TestCase):
         self.assertTrue(
             LogAuditoria.objects.filter(tipo_evento=LogAuditoria.TIPO_ACCESO_DENEGADO).exists()
         )
+
+
+class PanelAuditoriaTests(TestCase):
+    def setUp(self):
+        from usuarios.models import Rol
+
+        self.admin = Usuario.objects.create_user(
+            username="root2", password="Clave-Segura-123", identificacion="8-8888-8888",
+            nombre_completo="Root", rol=Rol.objects.create(nombre="SuperAdmin"),
+        )
+        self.auditor = Usuario.objects.create_user(
+            username="aud2", password="Clave-Segura-123", identificacion="7-7777-7777",
+            nombre_completo="Aud", rol=Rol.objects.create(nombre="Auditor", puede_ver_reportes=True),
+        )
+        self.gestor = Usuario.objects.create_user(
+            username="ges2", password="Clave-Segura-123", identificacion="6-6666-6666",
+            nombre_completo="Ges", rol=Rol.objects.create(nombre="Gestor de reservas"),
+        )
+
+    def test_superadmin_accede(self):
+        self.client.force_login(self.admin)
+        r = self.client.get(reverse("panel_auditoria"))
+        self.assertEqual(r.status_code, 200)
+
+    def test_auditor_y_gestor_reciben_403(self):
+        for u in (self.auditor, self.gestor):
+            self.client.force_login(u)
+            self.assertEqual(self.client.get(reverse("panel_auditoria")).status_code, 403)
+
+    def test_anonimo_redirige_a_login(self):
+        r = self.client.get(reverse("panel_auditoria"))
+        self.assertEqual(r.status_code, 302)
+
+    def test_filtro_por_tipo(self):
+        LogAuditoria.objects.create(tipo_evento="LOGIN_FAIL", username_intentado="zzz")
+        self.client.force_login(self.admin)
+        r = self.client.get(reverse("panel_auditoria"), {"tipo": "LOGIN_FAIL"})
+        self.assertContains(r, "zzz")
+        r = self.client.get(reverse("panel_auditoria"), {"tipo": "ACCESO_403", "usuario": "zzz"})
+        self.assertNotContains(r, "<td>zzz</td>")
+
+    def test_filtros_invalidos_no_rompen(self):
+        self.client.force_login(self.admin)
+        r = self.client.get(reverse("panel_auditoria"), {"desde": "xx", "tipo": "<script>", "page": "abc"})
+        self.assertEqual(r.status_code, 200)
