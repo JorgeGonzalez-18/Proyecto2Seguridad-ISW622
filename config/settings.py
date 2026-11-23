@@ -183,12 +183,14 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # HSTS: obliga a usar conexiones seguras HTTPS
-SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+# 1 año en produccion (solo se envia sobre HTTPS); 0 en desarrollo local
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0 if DEBUG else 31536000, cast=int)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
 # Content-Security-Policy o CSP es:
 # Lista blanca que define qué orígenes pueden cargar scripts, estilos e imágenes
+# django-csp 3.x (el que fija requirements.txt) lee estas variables CSP_*:
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net")
@@ -196,3 +198,15 @@ CSP_IMG_SRC = ("'self'", "data:")
 CSP_FONT_SRC = ("'self'", "https://cdn.jsdelivr.net")
 CSP_OBJECT_SRC = ("'none'",)
 CSP_FRAME_ANCESTORS = ("'none'",)
+# django-csp 4.x ignora las CSP_* y lee este diccionario (se mantienen ambos formatos):
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ("'self'",),
+        "script-src": ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"),
+        "style-src": ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"),
+        "img-src": ("'self'", "data:"),
+        "font-src": ("'self'", "https://cdn.jsdelivr.net"),
+        "object-src": ("'none'",),
+        "frame-ancestors": ("'none'",),
+    }
+}
