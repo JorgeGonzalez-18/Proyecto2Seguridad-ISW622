@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte Semanal de Ocupación (RFD-4.5){% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Reporte Semanal de Ocupación de Salas</h2>
+        <p class="text-muted small mb-0">RFD-4.5: Análisis de ocupación y uso de salas por semana. Exclusivo para SuperAdmin y Auditor.</p>
+    </div>
+    <span class="badge bg-primary fs-6 px-3 py-2">
+        Semana: {{ semana_str }}
+    </span>
+</div>
+
+<!-- Selector de semana -->
+<div class="card p-3 mb-4 shadow-sm border-0">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <label class="form-label small text-muted mb-1">Seleccionar cualquier día de la semana:</label>
+            <input type="date" name="fecha" value="{{ fecha_seleccionada }}" class="form-control">
+        </div>
+        <div class="col-md-5">
+            <label class="form-label small text-muted mb-1">Período calculado (Lunes a Domingo):</label>
+            <div class="form-control bg-light text-muted">{{ inicio_semana|date:"d M Y" }} &mdash; {{ fin_semana|date:"d M Y" }}</div>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-dark w-100">Consultar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Resumen Estadístico -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm border-0 text-center">
+            <span class="text-muted small">Total de Reservas Activas en la Semana</span>
+            <span class="display-6 fw-bold text-primary">{{ total_reservas_semana }}</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm border-0 text-center">
+            <span class="text-muted small">Total de Salas Monitoreadas</span>
+            <span class="display-6 fw-bold text-dark">{{ total_salas }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Ocupación por Sala -->
+<div class="card shadow-sm border-0 overflow-hidden">
+    <div class="card-header bg-dark text-white py-3">
+        <h5 class="mb-0 fw-bold">Desglose de Ocupación por Espacio Académico</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Sala / Laboratorio</th>
+                    <th>Capacidad</th>
+                    <th>Estado Actual</th>
+                    <th class="text-center">Reservas en la Semana</th>
+                    <th style="width: 35%;">Nivel de Ocupación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in reporte_salas %}
+                <tr>
+                    <td class="fw-bold text-dark">{{ item.sala.nombre }}</td>
+                    <td>{{ item.sala.capacidad }} personas</td>
+                    <td>
+                        {% if item.sala.estado == 'DISPONIBLE' %}
+                        <span class="badge bg-success">Disponible</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Mantenimiento</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center fw-bold font-monospace">{{ item.total_reservas }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="progress flex-grow-1" style="height: 12px;">
+                                <div class="progress-bar {% if item.porcentaje >= 75 %}bg-danger{% elif item.porcentaje >= 40 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ item.porcentaje }}%;" 
+                                     aria-valuenow="{{ item.porcentaje }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <span class="small font-monospace text-muted" style="min-width: 45px;">
+                                {{ item.porcentaje }}%
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No hay salas registradas actualmente.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

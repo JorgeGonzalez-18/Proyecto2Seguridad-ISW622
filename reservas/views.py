@@ -184,3 +184,63 @@ def cancelar_reserva_view(request, codigo):
         return redirect("reservas:lista_reservas")
 
     return render(request, "reservas/confirmar_cancelar.html", {"reserva": reserva})
+
+# REPORTE DE OCUPACIÓN SEMANAL 
+
+@login_required(login_url="login")
+@requiere_permiso("ver_reportes")
+def reporte_ocupacion_view(request):
+    """
+    RFD-4.5: Reporte de ocupación por sala y por semana.
+    Exclusivo para usuarios con permiso 'ver_reportes' (SuperAdmin y Auditor).
+    El Gestor de reservas no tiene acceso a este reporte analítico (HTTP 403).
+    """
+    # Fecha de consulta (por defecto hoy)
+    hoy = timezone.localdate()
+    fecha_str = request.GET.get("fecha", str(hoy))
+    try:
+        fecha_ref = timezone.datetime.strptime(fecha_str, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        fecha_ref = hoy
+
+    # Calcular lunes y domingo de la semana consultada
+    inicio_semana = fecha_ref - timezone.timedelta(days=fecha_ref.weekday())
+    fin_semana = inicio_semana + timezone.timedelta(days=6)
+
+    salas = Sala.objects.all()
+    reporte_salas = []
+    total_reservas_semana = 0
+
+    # Capacidad teórica estándar semanal (ej: 5 días x 7 franjas = 35 franjas)
+    CAPACIDAD_SEMANAL_ESTANDAR = 35
+
+    for sala in salas:
+        reservas_sala = Reserva.objects.filter(
+            sala=sala,
+            fecha__range=[inicio_semana, fin_semana],
+            estado=Reserva.ESTADO_ACTIVA
+        )
+        cantidad = reservas_sala.count()
+        total_reservas_semana += cantidad
+
+        porcentaje = min(100, int((cantidad / CAPACIDAD_SEMANAL_ESTANDAR) * 100))
+
+        reporte_salas.append({
+            "sala": sala,
+            "total_reservas": cantidad,
+            "porcentaje": porcentaje,
+        })
+
+    return render(
+        request,
+        "reservas/reporte_ocupacion.html",
+        {
+            "inicio_semana": inicio_semana,
+            "fin_semana": fin_semana,
+            "semana_str": f"{inicio_semana.strftime('%d/%m/%Y')} al {fin_semana.strftime('%d/%m/%Y')}",
+            "fecha_seleccionada": str(fecha_ref),
+            "reporte_salas": reporte_salas,
+            "total_reservas_semana": total_reservas_semana,
+            "total_salas": salas.count(),
+        },
+    )

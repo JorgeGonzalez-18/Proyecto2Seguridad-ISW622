@@ -21,6 +21,9 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'inicio' %}">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'reservas:lista_salas' %}">Salas</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'reservas:lista_reservas' %}">Reservas</a></li>
+                    {% if user.rol.puede_ver_reportes or user.is_superuser %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'reservas:reporte_ocupacion' %}">Ocupación</a></li>
+                    {% endif %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'lista_usuarios' %}">Usuarios</a></li>
                     {% if user.is_superuser or user.rol.nombre == 'SuperAdmin' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'lista_roles' %}">Roles (RBAC)</a></li>

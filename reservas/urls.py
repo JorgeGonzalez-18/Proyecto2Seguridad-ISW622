@@ -9,6 +9,9 @@ urlpatterns = [
     path("salas/nueva/", views.crear_sala_view, name="crear_sala"),
     path("salas/<int:pk>/editar/", views.editar_sala_view, name="editar_sala"),
 
+     # Reporte de Ocupación Semanal 
+    path("reportes/ocupacion/", views.reporte_ocupacion_view, name="reporte_ocupacion"),
+
     # Gestión de Reservas (RFD-4.2 y RFD-4.4)
     path("", views.lista_reservas_view, name="lista_reservas"),
     path("nueva/", views.crear_reserva_view, name="crear_reserva"),
