@@ -7,6 +7,7 @@ urlpatterns = [
     path("", inicio_view, name="inicio"),
     path("", include("usuarios.urls")),
     path("", include("auditoria.urls")),
+    path("reservas/", include("reservas.urls")),
 ]
 
 # UTN-06: Manejador global del error HTTP 403 Forbidden

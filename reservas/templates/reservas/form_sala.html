@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ accion }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="mb-0 fw-bold">{{ accion }}</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Nombre de la sala / laboratorio:</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Capacidad (personas):</label>
+                        {{ form.capacidad }}
+                        {% if form.capacidad.errors %}<div class="text-danger small">{{ form.capacidad.errors }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Equipamiento disponible:</label>
+                        {{ form.equipo_disponible }}
+                        {% if form.equipo_disponible.errors %}<div class="text-danger small">{{ form.equipo_disponible.errors }}</div>{% endif %}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Estado:</label>
+                        {{ form.estado }}
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'reservas:lista_salas' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">Guardar Sala</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

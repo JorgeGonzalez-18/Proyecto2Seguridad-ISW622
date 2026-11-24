@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Catálogo de Salas y Laboratorios{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Catálogo de Salas y Laboratorios</h2>
+        <p class="text-muted small mb-0">RFD-4.1: Espacios académicos disponibles para reserva.</p>
+    </div>
+    {% if user.rol.puede_crear or user.is_superuser %}
+    <a href="{% url 'reservas:crear_sala' %}" class="btn btn-primary">
+        + Registrar Nueva Sala
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filtros de búsqueda -->
+<div class="card p-3 mb-4 shadow-sm border-0">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <input type="text" name="q" value="{{ busqueda }}" class="form-control" placeholder="Buscar por nombre o equipamiento...">
+        </div>
+        <div class="col-md-4">
+            <select name="estado" class="form-select">
+                <option value="">-- Todos los estados --</option>
+                {% for valor, etiqueta in estados %}
+                <option value="{{ valor }}" {% if estado_filtro == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-dark w-100">Buscar</button>
+            <a href="{% url 'reservas:lista_salas' %}" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </form>
+</div>
+
+<!-- Cuadrícula de Salas -->
+<div class="row g-3">
+    {% for sala in pagina %}
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold text-primary mb-0">{{ sala.nombre }}</h5>
+                    {% if sala.estado == 'DISPONIBLE' %}
+                    <span class="badge bg-success">Disponible</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Mantenimiento</span>
+                    {% endif %}
+                </div>
+                <p class="card-text text-muted small mb-2">
+                    <strong>Capacidad:</strong> {{ sala.capacidad }} personas
+                </p>
+                <p class="card-text small text-secondary mb-3">
+                    <strong>Equipamiento:</strong><br>{{ sala.equipo_disponible }}
+                </p>
+            </div>
+            <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                {% if sala.estado == 'DISPONIBLE' and user.rol.puede_crear or user.is_superuser %}
+                <a href="{% url 'reservas:crear_reserva' %}?sala={{ sala.id }}" class="btn btn-sm btn-outline-primary">
+                    Reservar Sala
+                </a>
+                {% endif %}
+                {% if user.rol.puede_editar or user.is_superuser %}
+                <a href="{% url 'reservas:editar_sala' sala.id %}" class="btn btn-sm btn-outline-secondary">
+                    Editar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info text-center py-4">No se encontraron salas registradas.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

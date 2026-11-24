@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Reserva {{ reserva.codigo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-danger text-white py-3">
+                <h5 class="mb-0 fw-bold">RFD-4.4: Cancelar Reserva</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p class="lead mb-3">¿Está seguro de que desea cancelar la reserva <strong class="font-monospace text-primary">{{ reserva.codigo }}</strong>?</p>
+                <div class="card bg-light p-3 mb-4 text-start small">
+                    <div><strong>Sala:</strong> {{ reserva.sala.nombre }}</div>
+                    <div><strong>Solicitante:</strong> {{ reserva.solicitante }}</div>
+                    <div><strong>Fecha:</strong> {{ reserva.fecha|date:"d/m/Y" }} de {{ reserva.hora_inicio|time:"H:i" }} a {{ reserva.hora_fin|time:"H:i" }}</div>
+                </div>
+                <div class="alert alert-warning small text-start">
+                    Al confirmar, la reserva pasará a estado <strong>CANCELADA</strong> y la franja horaria quedará inmediatamente liberada para otros usuarios.
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-secondary">Regresar</a>
+                        <button type="submit" class="btn btn-danger px-4">Sí, Cancelar Reserva</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

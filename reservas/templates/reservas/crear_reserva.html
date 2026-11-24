@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Nueva Reserva{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="mb-0 fw-bold">Crear Nueva Reserva de Sala / Laboratorio</h5>
+            </div>
+            <div class="card-body p-4">
+                <!-- Reglas de negocio informativas -->
+                <div class="alert alert-info py-2 small mb-4">
+                    <strong>Reglas del sistema:</strong>
+                    <ul class="mb-0 ps-3">
+                        <li><strong>RN-4.1:</strong> La hora de fin debe ser posterior a la de inicio.</li>
+                        <li><strong>RN-4.2:</strong> Máximo 3 horas de duración por reserva.</li>
+                        <li><strong>RN-4.3:</strong> Reservar con al menos 24 horas de anticipación.</li>
+                        <li><strong>RFD-4.3:</strong> Se rechaza automáticamente cualquier horario que choque con otra reserva activa.</li>
+                    </ul>
+                </div>
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-medium">Sala o Laboratorio:</label>
+                            {{ form.sala }}
+                            {% if form.sala.errors %}<div class="text-danger small">{{ form.sala.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label fw-medium">Nombre del Solicitante:</label>
+                            {{ form.solicitante }}
+                            {% if form.solicitante.errors %}<div class="text-danger small">{{ form.solicitante.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Identificación / Cédula:</label>
+                            {{ form.identificacion_solicitante }}
+                            {% if form.identificacion_solicitante.errors %}<div class="text-danger small">{{ form.identificacion_solicitante.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium">Correo Institucional:</label>
+                            {{ form.correo_solicitante }}
+                            {% if form.correo_solicitante.errors %}<div class="text-danger small">{{ form.correo_solicitante.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium">Fecha de la Reserva:</label>
+                            {{ form.fecha }}
+                            {% if form.fecha.errors %}<div class="text-danger small">{{ form.fecha.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium">Hora de Inicio:</label>
+                            {{ form.hora_inicio }}
+                            {% if form.hora_inicio.errors %}<div class="text-danger small">{{ form.hora_inicio.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium">Hora de Fin:</label>
+                            {{ form.hora_fin }}
+                            {% if form.hora_fin.errors %}<div class="text-danger small">{{ form.hora_fin.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Motivo o Propósito Académico:</label>
+                        {{ form.motivo }}
+                        {% if form.motivo.errors %}<div class="text-danger small">{{ form.motivo.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-medium">Confirmar y Crear Reserva</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Comprobante de Reserva {{ reserva.codigo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 fw-bold">Comprobante de Reserva</h5>
+                <span class="badge {% if reserva.estado == 'ACTIVA' %}bg-success{% elif reserva.estado == 'CANCELADA' %}bg-danger{% else %}bg-secondary{% endif %} fs-6">
+                    {{ reserva.estado }}
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <span class="text-muted small d-block">Código Único de Reserva</span>
+                    <h2 class="display-6 fw-bold font-monospace text-primary">{{ reserva.codigo }}</h2>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <strong>Sala / Espacio:</strong><br>{{ reserva.sala.nombre }} (Capacidad: {{ reserva.sala.capacidad }} personas)
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Fecha de Uso:</strong><br>{{ reserva.fecha|date:"l d de F de Y" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Horario Asignado:</strong><br>{{ reserva.hora_inicio|time:"H:i" }} &mdash; {{ reserva.hora_fin|time:"H:i" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Solicitante:</strong><br>{{ reserva.solicitante }} (ID: {{ reserva.identificacion_solicitante }})
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Correo de Contacto:</strong><br>{{ reserva.correo_solicitante }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Registrado por:</strong><br>{{ reserva.creado_por.username|default:"Sistema" }}
+                    </div>
+                    {% if reserva.motivo %}
+                    <div class="col-12">
+                        <strong>Motivo:</strong><br>{{ reserva.motivo }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-between pt-3 border-top">
+                    <a href="{% url 'reservas:lista_reservas' %}" class="btn btn-outline-secondary">Volver al Listado</a>
+                    {% if reserva.estado == 'ACTIVA' and user.rol.puede_borrar or user.is_superuser %}
+                    <a href="{% url 'reservas:cancelar_reserva' reserva.codigo %}" class="btn btn-danger">Cancelar Reserva</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
