@@ -164,6 +164,6 @@ El reporte se genera automáticamente en formato HTML interactivo dentro de la c
 El sistema se encuentra desplegado y accesible públicamente para el acceso de los equipos evaluadores y el docente:
 
 - **Plataforma de Despliegue:** [Render](https://render.com/)
-- **Enlace de Producción:** `https://proyecto2seguridad-isw622.onrender.com` _(o la URL asignada en tu servicio de Render)_
+- **Enlace de Producción:** https://reservas-salas-y-laboratorios.onrender.com
 - **Base de Datos en Producción:** PostgreSQL gestionado con conexión SSL activa.
 - **Certificado SSL:** HTTPS forzado con directivas de seguridad web activas.
