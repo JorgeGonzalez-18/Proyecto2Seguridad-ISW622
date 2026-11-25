@@ -103,3 +103,67 @@ python manage.py runserver
 ```
 
 Acceder en el navegador a: `http://127.0.0.1:8000/`
+
+---
+
+## Credenciales de Prueba y Control de Acceso (RBAC)
+
+Para la evaluación del docente y las pruebas de penetración ética del **Red Team**, el sistema cuenta con 3 usuarios preconfigurados que representan la jerarquía del control de acceso basado en roles (`UTN-06`):
+
+| Rol                    | Usuario   | Contraseña      | Permisos y Alcance                                                                                                                                           |
+| :--------------------- | :-------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SuperAdmin**         | `admin`   | `Admin123456*!` | **Acceso total:** CRUD de usuarios y roles, asignación de permisos granulares (`UTN-05`), consulta de bitácora de auditoría (`UTN-09`) y reportes.           |
+| **Auditor**            | `auditor` | `Auditor123*!`  | **Solo lectura:** Consulta de usuarios, salas, reservas y reporte semanal de ocupación (`RFD-4.5`). Bloqueo HTTP 403 ante cualquier intento de modificación. |
+| **Gestor de reservas** | `gestor`  | `Gestor123*!`   | **Rol operativo:** CRUD de la entidad principal (`Reserva`), catálogo de salas, y detección de conflictos. Solo lectura de usuarios.                         |
+
+> [!NOTE]
+> Las contraseñas se almacenan protegidas mediante el algoritmo **Argon2id** (`UTN-02`). Todas las sesiones expiran automáticamente tras **60 segundos de inactividad** (`UTN-07c`).
+
+---
+
+## Reglas de Negocio del Dominio 4
+
+El sistema implementa y valida de forma estricta las reglas del campus:
+
+- **RN-4.1:** La hora de fin debe ser estrictamente posterior a la hora de inicio.
+- **RN-4.2:** Una reserva puede durar como máximo **3 horas** continuas.
+- **RN-4.3:** Solo se permite reservar con al menos **24 horas de anticipación** respecto a la hora actual.
+- **RFD-4.3 (Detección de Conflictos):** El sistema rechaza automáticamente cualquier solicitud que se traslape en horario con otra reserva confirmada en la misma sala.
+
+---
+
+## Suite de Pruebas Automatizadas de Seguridad (UTN-10)
+
+El proyecto incluye una batería de pruebas de seguridad ejecutables con un solo comando mediante `pytest-django`:
+
+### Comando de Ejecución Único
+
+```bash
+pytest --html=reports/reporte_seguridad.html --self-contained-html
+```
+
+El reporte se genera automáticamente en formato HTML interactivo dentro de la carpeta `reports/`.
+
+### Casos de Prueba Cubiertos
+
+- **TC-01:** SQL Injection en formulario de autenticación/login (`' OR '1'='1`).
+- **TC-02:** SQL Injection en búsqueda y filtrado de salas/reservas.
+- **TC-03:** Cross-Site Scripting (XSS) reflejado en parámetros de consulta URL.
+- **TC-04:** Cross-Site Scripting (XSS) almacenado en campos de texto (salas y motivos).
+- **TC-05:** Expiración estricta de sesión tras 60 segundos de inactividad (`UTN-07c`).
+- **TC-06:** Control de acceso: Auditor intentando acceder a la gestión de roles (esperado HTTP 403).
+- **TC-07:** Control de acceso: Gestor de reservas intentando eliminar usuarios vía API/POST (esperado HTTP 403).
+- **TC-08:** Prevención CSRF: Rechazo de formularios modificadores enviados sin token anti-CSRF.
+- **TC-09:** Verificación de atributos de cookies de sesión (`HttpOnly`, `SameSite=Lax`, sin datos sensibles planos).
+- **TC-10:** Verificación de encabezados de seguridad HTTP (`CSP`, `nosniff`, `X-Frame-Options: DENY`).
+
+---
+
+## Ambiente de Ejecución Publicado (Despliegue en la Nube)
+
+El sistema se encuentra desplegado y accesible públicamente para el acceso de los equipos evaluadores y el docente:
+
+- **Plataforma de Despliegue:** [Render](https://render.com/)
+- **Enlace de Producción:** `https://proyecto2seguridad-isw622.onrender.com` _(o la URL asignada en tu servicio de Render)_
+- **Base de Datos en Producción:** PostgreSQL gestionado con conexión SSL activa.
+- **Certificado SSL:** HTTPS forzado con directivas de seguridad web activas.
