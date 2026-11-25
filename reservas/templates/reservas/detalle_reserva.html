@@ -23,7 +23,7 @@
                         <strong>Sala / Espacio:</strong><br>{{ reserva.sala.nombre }} (Capacidad: {{ reserva.sala.capacidad }} personas)
                     </div>
                     <div class="col-md-6">
-                        <strong>Fecha de Uso:</strong><br>{{ reserva.fecha|date:"l d de F de Y" }}
+                        <strong>Fecha de Uso:</strong><br>{{ reserva.fecha|date:"l d \d\e F \d\e Y" }}
                     </div>
                     <div class="col-md-6">
                         <strong>Horario Asignado:</strong><br>{{ reserva.hora_inicio|time:"H:i" }} &mdash; {{ reserva.hora_fin|time:"H:i" }}
