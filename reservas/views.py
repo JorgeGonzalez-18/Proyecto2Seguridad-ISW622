@@ -104,12 +104,18 @@ def lista_reservas_view(request):
             Q(solicitante__icontains=busqueda) |
             Q(identificacion_solicitante__icontains=busqueda)
         )
-    if sala_id:
-        reservas = reservas.filter(sala_id=sala_id)
+    if sala_id and sala_id.isdigit():
+        reservas = reservas.filter(sala_id=int(sala_id))
+    else:
+        sala_id = ""
     if estado in dict(Reserva.ESTADOS_RESERVA):
         reservas = reservas.filter(estado=estado)
     if fecha:
-        reservas = reservas.filter(fecha=fecha)
+        try:
+            datetime.strptime(fecha, "%Y-%m-%d")
+            reservas = reservas.filter(fecha=fecha)
+        except ValueError:
+            fecha = ""
 
     paginator = Paginator(reservas, 15)
     pagina = paginator.get_page(request.GET.get("page"))

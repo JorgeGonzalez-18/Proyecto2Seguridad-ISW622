@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Usuario, Rol
 from .forms import LoginForm, UsuarioCrearForm, UsuarioEditarForm, RolForm
 from .decorators import requiere_rol
@@ -27,7 +28,13 @@ def login_view(request):
                 request, f"Bienvenido, {usuario.nombre_completo or usuario.username}!"
             )
             next_url = request.GET.get("next")
-            return redirect(next_url if next_url else "inicio")
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+            return redirect("inicio")
         else:
             messages.error(request, "Usuario o contraseña incorrectos.")
     else:
