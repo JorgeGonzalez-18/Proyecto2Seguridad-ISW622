@@ -5,7 +5,7 @@ reservas/, 5 salas con reservas de ejemplo.
 
 Uso:  python manage.py seed_data
 """
-from datetime import datetime, time, timedelta
+from datetime import time, timedelta
 
 from django.apps import apps
 from django.core.management import call_command
@@ -96,12 +96,10 @@ class Command(BaseCommand):
         return usuario
 
     def _crear_salas_y_reservas(self, gestor):
-        # AJUSTAR: nombres de modelos y campos según la app del integrante 2
         Sala = apps.get_model("reservas", "Sala")
         Reserva = apps.get_model("reservas", "Reserva")
 
-        manana = timezone.localdate() + timedelta(days=2)  # RN-4.3: >= 24 h de anticipación
-        tz = timezone.get_current_timezone()
+        dia_base = timezone.localdate() + timedelta(days=2)  # RN-4.3: >= 24 h de anticipación
 
         for i, datos in enumerate(SALAS_SEMILLA):
             sala, _ = Sala.objects.get_or_create(
@@ -109,18 +107,20 @@ class Command(BaseCommand):
                 defaults={
                     "capacidad": datos["capacidad"],
                     "equipo_disponible": datos["equipo"],
-                    "estado": "disponible",
+                    "estado": "DISPONIBLE",
                 },
             )
 
-            inicio = datetime.combine(manana + timedelta(days=i), time(9, 0), tzinfo=tz)
-            fin = inicio + timedelta(hours=2)  # RN-4.1 y RN-4.2: fin > inicio, máx. 3 h
             Reserva.objects.get_or_create(
                 sala=sala,
-                fecha_inicio=inicio,
+                fecha=dia_base + timedelta(days=i),
+                hora_inicio=time(9, 0),
                 defaults={
-                    "fecha_fin": fin,
+                    "hora_fin": time(11, 0),  # RN-4.2: máx. 3 h
                     "solicitante": f"Solicitante de ejemplo {i + 1}",
+                    "identificacion_solicitante": f"10000000{i + 1}",
+                    "correo_solicitante": f"solicitante{i + 1}@reservas.local",
+                    "motivo": "Reserva de ejemplo (seed_data)",
                     "creado_por": gestor,
                 },
             )

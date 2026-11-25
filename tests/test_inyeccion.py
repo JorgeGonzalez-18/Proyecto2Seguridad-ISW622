@@ -37,9 +37,10 @@ def test_tc01_sqli_password_con_usuario_real(client, superadmin):
     assert "_auth_user_id" not in client.session
 
 
+
 def _url_busqueda():
     """Busca la ruta de búsqueda de salas/reservas (app del integrante 2)."""
-    for nombre in ("buscar_salas", "lista_salas", "buscar_reservas", "lista_reservas"):
+    for nombre in ("reservas:lista_salas", "reservas:lista_reservas"):
         try:
             return reverse(nombre)
         except NoReverseMatch:
