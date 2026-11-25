@@ -34,3 +34,72 @@ Aplicación web empresarial construida para gestionar el catálogo y la reserva 
 - **Protección Web:** `django-csp` (Content Security Policy estricto), Middlewares de sesión y anti-Clickjacking
 - **Suite de Pruebas:** `pytest-django`, `pytest-html` (reportes HTML automatizados)
 - **Interfaz de Usuario:** HTML5 semántico, Bootstrap 5.3 (sin scripts inline inseguros)
+
+---
+
+## Instalación y Puesta en Marcha Local
+
+### Prerrequisitos
+
+- **Python:** Versión 3.11, 3.12 o 3.14 instalada.
+- **Git:** Para clonar el repositorio.
+
+### Paso 1: Clonar el Repositorio
+
+```bash
+git clone https://github.com/JorgeGonzalez-18/Proyecto2Seguridad-ISW622.git
+cd Proyecto2Seguridad-ISW622
+```
+
+### Paso 2: Crear y Activar el Entorno Virtual (`venv`)
+
+- **En Windows (CMD / PowerShell):**
+  ```powershell
+  py -m venv venv
+  .\venv\Scripts\activate
+  ```
+- **En Linux / macOS:**
+  ```bash
+  python3 -m venv venv
+  source venv/bin/activate
+  ```
+
+### Paso 3: Instalar Dependencias
+
+Con el entorno `(venv)` activo:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Paso 4: Configurar Variables de Entorno
+
+Copiar la plantilla de configuración `.env.example` a un archivo `.env`:
+
+- **Windows:**
+  ```cmd
+  copy .env.example .env
+  ```
+- **Linux / macOS:**
+  ```bash
+  cp .env.example .env
+  ```
+  _(El archivo `.env` permite configurar `DEBUG`, `SECRET_KEY`, `ALLOWED_HOSTS` y `DATABASE_URL` de forma aislada sin exponer credenciales)._
+
+### Paso 5: Aplicar Migraciones y Cargar Semillas de Datos
+
+```bash
+# Crear las tablas en la base de datos relacional
+python manage.py migrate
+
+# Cargar los 3 roles iniciales (SuperAdmin, Auditor, Gestor de reservas) y usuario admin
+python manage.py crear_roles
+```
+
+### Paso 6: Iniciar el Servidor de Desarrollo
+
+```bash
+python manage.py runserver
+```
+
+Acceder en el navegador a: `http://127.0.0.1:8000/`
